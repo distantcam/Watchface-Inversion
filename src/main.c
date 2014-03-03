@@ -92,6 +92,8 @@ void init(void) {
 }
 
 void deinit(void) {
+	tick_timer_service_unsubscribe();
+	
 	layer_remove_child_layers(window_get_root_layer(window));
 	
 	inverter_layer_destroy(minuteLayer);
