@@ -20,7 +20,7 @@ const uint32_t HOUR_IMAGE_RESOURCE_IDS[] = {
 };
 
 const int MINUTE_HEIGHTS[] = { 
-	168, 165, 162, 160, 157, 154, 151, 148, 146, 143, 
+	167, 165, 162, 160, 157, 154, 151, 148, 146, 143, 
 	140, 137, 134, 132, 129, 126, 123, 120, 118, 115, 
 	112, 109, 106, 104, 101, 98, 95, 92, 90, 87, 
 	84, 81, 78, 76, 73, 70, 67, 64, 62, 59, 
@@ -85,8 +85,8 @@ void init(void) {
 	time_t now = time(NULL);
 	struct tm *tick_time = localtime(&now);
 	
-	handle_hour_tick(tick_time, HOUR_UNIT);
-	handle_minute_tick(tick_time, MINUTE_UNIT);
+	handle_tick(tick_time, HOUR_UNIT);
+	handle_tick(tick_time, MINUTE_UNIT);
 	
 	tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
 }
