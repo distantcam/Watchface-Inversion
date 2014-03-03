@@ -34,43 +34,44 @@ static BitmapLayer *hourLayer;
 InverterLayer *minuteLayer;
 
 static void set_container_image(GBitmap **bmp_image, BitmapLayer *bmp_layer, const int resource_id) {
-  GBitmap *old_image = *bmp_image;
+	GBitmap *old_image = *bmp_image;
 
-  *bmp_image = gbitmap_create_with_resource(resource_id);
-  GRect frame = (GRect) {
-    .size = (*bmp_image)->bounds.size
-  };
-  bitmap_layer_set_bitmap(bmp_layer, *bmp_image);
-  layer_set_frame(bitmap_layer_get_layer(bmp_layer), frame);
+	*bmp_image = gbitmap_create_with_resource(resource_id);
+	GRect frame = (GRect) {
+		.size = (*bmp_image)->bounds.size
+	};
+	bitmap_layer_set_bitmap(bmp_layer, *bmp_image);
+	layer_set_frame(bitmap_layer_get_layer(bmp_layer), frame);
 
-  if (old_image != NULL) {
-  	gbitmap_destroy(old_image);
-  }
+	if (old_image != NULL) {
+		gbitmap_destroy(old_image);
+	}
 }
 
-void handle_hour_tick(struct tm *tick_time, TimeUnits units_changed) {
-	int hour = tick_time->tm_hour;
-	while (hour > 12)
-		hour -= 12;
-	if (hour == 0)
-		hour = 12;
-	
-	hour -= 1;
+void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
+	if ((units_changed & HOUR_UNIT) != 0) {
+		int hour = tick_time->tm_hour;
+		while (hour > 12)
+			hour -= 12;
+		if (hour == 0)
+			hour = 12;
 		
-	set_container_image(&hourImage, hourLayer, HOUR_IMAGE_RESOURCE_IDS[hour]);
-}
+		hour -= 1;
 
-void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
-	int min = tick_time->tm_min;
-	int top = MINUTE_HEIGHTS[min];
+		set_container_image(&hourImage, hourLayer, HOUR_IMAGE_RESOURCE_IDS[hour]);
+	}
+	if ((units_changed & MINUTE_UNIT) != 0) {
+		int min = tick_time->tm_min;
+		int top = MINUTE_HEIGHTS[min];
 	
-	layer_set_frame(inverter_layer_get_layer(minuteLayer), GRect(0, top, 144, 168));
+		layer_set_frame(inverter_layer_get_layer(minuteLayer), GRect(0, top, 144, 168));
+	}
 }
 
 void init(void) {
 	window = window_create();
 	window_set_background_color(window, GColorBlack);
-  	window_stack_push(window, true); // Animated
+		window_stack_push(window, true); // Animated
 	
 	Layer *windowLayer = window_get_root_layer(window);
 	GRect windowFrame = layer_get_frame(windowLayer);
@@ -82,13 +83,12 @@ void init(void) {
 	layer_add_child(windowLayer, inverter_layer_get_layer(minuteLayer));
 	
 	time_t now = time(NULL);
-  	struct tm *tick_time = localtime(&now);
-		
+	struct tm *tick_time = localtime(&now);
+	
 	handle_hour_tick(tick_time, HOUR_UNIT);
 	handle_minute_tick(tick_time, MINUTE_UNIT);
 	
-	tick_timer_service_subscribe(HOUR_UNIT, handle_hour_tick);
-	tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
+	tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
 }
 
 void deinit(void) {
@@ -98,7 +98,7 @@ void deinit(void) {
 	
 	gbitmap_destroy(hourImage);
 	bitmap_layer_destroy(hourLayer);
-		
+	
 	window_destroy(window);
 }
 
