@@ -1,4 +1,4 @@
-Watchface-Inversion
+Watchface-Liquid
 ==================
 
-Inversion - A Pebble Watchface
+Liquid - A Pebble Watchface
